@@ -4,7 +4,7 @@ const axios = require("axios");
 const WOOD_SMOKE_REBATE_MAGIC_NUMBER = 0.48;
 
 const client = sanityClient({
-  projectId: "6jjwu8fx",
+  projectId: process.env.SANITY_PROJECT_ID,
   dataset: "production",
   token: process.env.SANITY_TOKEN, // or leave blank to be anonymous user
   useCdn: false, // `false` if you want to ensure fresh data
