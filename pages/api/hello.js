@@ -26,11 +26,11 @@ export default async (req, res) => {
   res.statusCode = 200;
   people.forEach((person) => {
     console.info(person);
-    twilio.messages.create({
-      from: TWILIO_NUMBER,
-      to: person.mobileNumber,
-      body: `ffffuuffu ${aqi}`,
-    });
+    // twilio.messages.create({
+    //   from: TWILIO_NUMBER,
+    //   to: person.mobileNumber,
+    //   body: `ffffuuffu ${aqi}`,
+    // });
   });
   res.json({ LRAPA: aqi });
 };
