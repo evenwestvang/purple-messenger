@@ -138,7 +138,7 @@ function lineChartURLSpec(measurements) {
     options: {
       title: {
         display: true,
-        text: "Air quality last 120 minutes",
+        text: `Air quality last ${measurements} minutes`,
       },
     },
   };
