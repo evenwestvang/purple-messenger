@@ -49,7 +49,7 @@ export default async (req, res) => {
   const sensorURL = `https://www.purpleair.com/json?show=${sensors[0].id}`;
   const sensorResponse = await axios.get(sensorURL);
   const atmosphericPM25 = sensorResponse.data.results[0].pm2_5_atm;
-  const aqi = convert("pm25", "raw", "usaEpa", atmosphericPM25 * WOOD_SMOKE_REBATE_MAGIC_NUMBER);
+  let aqi = convert("pm25", "raw", "usaEpa", atmosphericPM25 * WOOD_SMOKE_REBATE_MAGIC_NUMBER);
 
   let currentCondition;
   for (let i = 0; i < conditions.length; i++) {
@@ -60,20 +60,18 @@ export default async (req, res) => {
     }
   }
 
-  const measurements = await client.fetch('*[_type == "measurement"] | order(_createdAt desc)[0...10]');
-  const minutesSincePreviousMeasurement = (new Date().getTime() - new Date((measurements[0] && measurements[0]._createdAt) || 0).getTime()) / 1000 / 60;
+  const measurements = await client.fetch('*[_type == "measurement"] | order(_createdAt desc)');
 
-  if (minutesSincePreviousMeasurement < 1) {
-    res.json({ status: "Throttled" });
-    return;
-  }
-
-  client.create({
+  const measurementDoc = {
     _type: "measurement",
     range: currentCondition.range,
     aqi: +aqi,
     pm25: +atmosphericPM25,
-  });
+  };
+
+  measurements.unshift(measurementDoc);
+  truncateData(measurements, 120);
+  client.create(measurementDoc);
 
   const broadcasts = await client.fetch('*[_type == "broadcast"] | order(_createdAt desc)');
   const previousBroadcastAQI = (broadcasts[0] && broadcasts[0].aqi) || 0;
@@ -85,9 +83,9 @@ export default async (req, res) => {
     res.json({ status: "No change" });
     return;
   }
+  truncateData(broadcasts, 9);
 
-  const broadcastMessage = `We just went from gone from ${conditions[previousBroadcastRange].name}(${previousBroadcastAQI}) to ${currentCondition.name}(${aqi})`;
-  // console.info(previousBroadcastRange, currentCondition.range);
+  const broadcastMessage = `Qir quality has gone from '${conditions[previousBroadcastRange].name}' (${previousBroadcastAQI}) to '${currentCondition.name}' (${aqi})`;
 
   client.create({
     _type: "broadcast",
@@ -95,16 +93,54 @@ export default async (req, res) => {
     range: +currentCondition.range,
   });
 
+  const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
+
   res.statusCode = 200;
   people.forEach((person) => {
-    console.info("person", person);
     twilio.messages.create({
       from: TWILIO_NUMBER,
       to: person.mobileNumber,
       body: broadcastMessage,
+      mediaUrl: chartURL,
     });
   });
-  // https://quickchart.io/chart?bkg=white&c={type:%27bar%27,data:{labels:[2012,2013,2014,2015,2016],datasets:[{label:%27Users%27,data:[100,60,50,180,120]}]}}
 
   res.json({ status: "Broadcast", LRAPA_AQI: aqi });
 };
+
+function truncateData(objects, count) {
+  objects.slice(count).forEach(async function (doc) {
+    await client.delete(doc._id);
+  });
+}
+
+function lineChartURLSpec(measurements) {
+  const obj = {
+    type: "line",
+    data: {
+      labels: measurements.map((d) => {
+        return "";
+      }),
+      datasets: [
+        {
+          label: "LRAPA AQI",
+          backgroundColor: "rgb(255, 99, 132)",
+          borderColor: "rgb(255, 99, 132)",
+          data: measurements
+            .map((d) => {
+              return d.aqi;
+            })
+            .reverse(),
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      title: {
+        display: true,
+        text: "Air quality last 120 minutes",
+      },
+    },
+  };
+  return encodeURIComponent(JSON.stringify(obj));
+}
