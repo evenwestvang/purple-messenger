@@ -1,11 +1,12 @@
+name: Run Broadcaster
 on:
   schedule:
-  - cron: "*/5 * * * *"
+    - cron: "*/5 * * * *"
 jobs:
   curl:
     runs-on: ubuntu-latest
     steps:
-    - name: curl
-      uses: wei/curl@master
-      with:
-        args: ${{ secrets.APP_URL }}
+      - name: curl
+        uses: wei/curl@master
+        with:
+          args: ${{ secrets.APP_URL }}
