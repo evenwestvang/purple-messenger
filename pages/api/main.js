@@ -87,7 +87,7 @@ export default async (req, res) => {
   }
 
   const broadcastMessage = `We just went from gone from ${conditions[previousBroadcastRange].name}(${previousBroadcastAQI}) to ${currentCondition.name}(${aqi})`;
-  console.info(previousBroadcastRange, currentCondition.range);
+  // console.info(previousBroadcastRange, currentCondition.range);
 
   client.create({
     _type: "broadcast",
