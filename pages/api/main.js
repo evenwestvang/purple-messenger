@@ -1,6 +1,5 @@
 import { convert } from "@shootismoke/convert";
 const sanityClient = require("@sanity/client");
-const axios = require("axios");
 
 const client = sanityClient({
   projectId: process.env.SANITY_PROJECT_ID,
@@ -48,8 +47,9 @@ export default async (req, res) => {
   const sensors = await client.fetch('*[_type == "sensor"]'); // TODO: average out more
 
   const sensorURL = `https://www.purpleair.com/json?show=${sensors[0].id}`;
-  const sensorResponse = await axios.get(sensorURL);
-  const atmosphericPM25 = sensorResponse.data.results[0].pm2_5_atm;
+  const sensorResult = await fetch(sensorURL);
+  const sensorResponse = await sensorResult.json();
+  const atmosphericPM25 = sensorResponse.results[0].pm2_5_atm;
   let aqi = convert("pm25", "raw", "usaEpa", atmosphericPM25 * WOOD_SMOKE_REBATE_MAGIC_NUMBER);
 
   let currentCondition;
@@ -107,14 +107,14 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
 
-  people.forEach((person) => {
-    twilio.messages.create({
-      from: TWILIO_NUMBER,
-      to: person.mobileNumber,
-      body: broadcastMessage,
-      mediaUrl: chartURL,
-    });
-  });
+  // people.forEach((person) => {
+  //   twilio.messages.create({
+  //     from: TWILIO_NUMBER,
+  //     to: person.mobileNumber,
+  //     body: broadcastMessage,
+  //     mediaUrl: chartURL,
+  //   });
+  // });
 
   res.statusCode = 200;
   res.json({ status: "Broadcast", LRAPA_AQI: aqi });
