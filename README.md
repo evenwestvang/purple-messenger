@@ -1,8 +1,16 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This repo is a Next.js starter, but it really just contains a single function in `pages/API` to get air quality, store it in sanity.io and send it our over twilio.
 
 ## Getting Started
 
-First, run the development server:
+You will need to provision it with the following .env vars:
+
+- SANITY_TOKEN
+- SANITY_PROJECT_ID
+- TWILIO_AUTH_TOKEN
+- TWILIO_NUMBER
+- TWILIO_ACCOUNT_SID
+
+To run the development server:
 
 ```bash
 npm run dev
@@ -10,18 +18,7 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Open [http://localhost:3000/api/main](http://localhost:3000/api/main) to run the function.
 
 ## Deploy on Vercel
 
