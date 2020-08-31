@@ -1,4 +1,4 @@
-This repo is a Next.js starter, but it really just contains a single function in `pages/API` to get air quality, store it in sanity.io and send it our over twilio.
+This repo is based on a Next.js starter, but it really just contains a single function in `pages/API` to get Air Quality readings from Purple Air, store it in Sanity.io and send it out over Twilio on SMS.
 
 ## Getting Started
 
