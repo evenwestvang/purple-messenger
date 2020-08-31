@@ -30,11 +30,11 @@ const conditions = [
     valueBeneath: 75,
   },
   {
-    name: "Get inside",
+    name: "Use judgement",
     valueBeneath: 100,
   },
   {
-    name: "Stay inside",
+    name: "Get inside",
     valueBeneath: 150,
   },
   {
@@ -107,7 +107,6 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
 
-  res.statusCode = 200;
   people.forEach((person) => {
     twilio.messages.create({
       from: TWILIO_NUMBER,
@@ -117,6 +116,7 @@ export default async (req, res) => {
     });
   });
 
+  res.statusCode = 200;
   res.json({ status: "Broadcast", LRAPA_AQI: aqi });
 };
 
