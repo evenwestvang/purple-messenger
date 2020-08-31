@@ -97,7 +97,7 @@ export default async (req, res) => {
   }
   truncateData(broadcasts, 2);
 
-  const broadcastMessage = `Qir quality has gone from '${conditions[previousBroadcastRange].name}' (${previousBroadcastAQI}) to '${currentCondition.name}' (${aqi})`;
+  const broadcastMessage = `Air quality has gone from '${conditions[previousBroadcastRange].name}' (${previousBroadcastAQI}) to '${currentCondition.name}' (${aqi})`;
 
   client.create({
     _type: "broadcast",
