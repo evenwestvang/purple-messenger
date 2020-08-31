@@ -1,7 +1,6 @@
 import { convert } from "@shootismoke/convert";
 const sanityClient = require("@sanity/client");
 const axios = require("axios");
-const WOOD_SMOKE_REBATE_MAGIC_NUMBER = 0.48;
 
 const client = sanityClient({
   projectId: process.env.SANITY_PROJECT_ID,
@@ -14,6 +13,8 @@ const ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_NUMBER = process.env.TWILIO_NUMBER;
 const twilio = require("twilio")(ACCOUNT_SID, TWILIO_TOKEN);
+
+const WOOD_SMOKE_REBATE_MAGIC_NUMBER = 0.48;
 
 const conditions = [
   {
@@ -79,11 +80,22 @@ export default async (req, res) => {
   const previousBroadcastTime = (broadcasts[0] && broadcasts[0]._createdAt) || 0;
   const minutesSinceBroadcast = (new Date().getTime() - previousBroadcastTime) / 1000 / 60;
 
-  if (minutesSinceBroadcast < 5 || previousBroadcastRange == currentCondition.range || Math.abs(previousBroadcastAQI - aqi) < 10) {
-    res.json({ status: "No change" });
+  const recentlySent = minutesSinceBroadcast < 5;
+  const rangeNotChanged = previousBroadcastRange == currentCondition.range;
+  const aqiChangeTooSmall = Math.abs(previousBroadcastAQI - aqi) < 10;
+
+  if (recentlySent || rangeNotChanged || aqiChangeTooSmall) {
+    // if (false) {
+    res.json({
+      status: {
+        recentlySent: recentlySent,
+        rangeNotChanged: rangeNotChanged,
+        aqiChangeTooSmall: aqiChangeTooSmall,
+      },
+    });
     return;
   }
-  truncateData(broadcasts, 9);
+  truncateData(broadcasts, 2);
 
   const broadcastMessage = `Qir quality has gone from '${conditions[previousBroadcastRange].name}' (${previousBroadcastAQI}) to '${currentCondition.name}' (${aqi})`;
 
@@ -95,6 +107,7 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
 
+  console.info(chartURL);
   res.statusCode = 200;
   people.forEach((person) => {
     twilio.messages.create({
@@ -138,7 +151,7 @@ function lineChartURLSpec(measurements) {
     options: {
       title: {
         display: true,
-        text: `Air quality last ${measurements} minutes`,
+        text: `Air quality last ${measurements.length} minutes`,
       },
     },
   };
