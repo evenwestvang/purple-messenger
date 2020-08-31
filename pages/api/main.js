@@ -107,7 +107,6 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
 
-  console.info(chartURL);
   res.statusCode = 200;
   people.forEach((person) => {
     twilio.messages.create({
