@@ -107,14 +107,14 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
 
-  // people.forEach((person) => {
-  //   twilio.messages.create({
-  //     from: TWILIO_NUMBER,
-  //     to: person.mobileNumber,
-  //     body: broadcastMessage,
-  //     mediaUrl: chartURL,
-  //   });
-  // });
+  people.forEach((person) => {
+    twilio.messages.create({
+      from: TWILIO_NUMBER,
+      to: person.mobileNumber,
+      body: broadcastMessage,
+      mediaUrl: chartURL,
+    });
+  });
 
   res.statusCode = 200;
   res.json({ status: "Broadcast", LRAPA_AQI: aqi });
