@@ -119,7 +119,7 @@ export default async (req, res) => {
   });
 
   const status = { status: "Broadcast", LRAPA_AQI: aqi };
-  res.statusCode = 200;
+  res.statusCode = 201;
   res.json(status);
 };
 
