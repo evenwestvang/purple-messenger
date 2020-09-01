@@ -93,6 +93,8 @@ export default async (req, res) => {
       },
     };
 
+    console.log(status);
+
     res.statusCode = 200;
     res.json(status);
     return;
@@ -118,7 +120,7 @@ export default async (req, res) => {
   //   });
   // });
   const status = { status: "Broadcast", LRAPA_AQI: aqi };
-  console.info(status);
+  console.log(status);
   res.statusCode = 200;
   res.json(status);
 };
