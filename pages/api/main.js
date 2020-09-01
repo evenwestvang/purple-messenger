@@ -85,14 +85,16 @@ export default async (req, res) => {
   const aqiChangeTooSmall = Math.abs(previousBroadcastAQI - aqi) < 10;
 
   if (recentlySent || rangeNotChanged || aqiChangeTooSmall) {
-    // if (false) {
-    res.json({
+    const status = {
       status: {
         recentlySent: recentlySent,
         rangeNotChanged: rangeNotChanged,
         aqiChangeTooSmall: aqiChangeTooSmall,
       },
-    });
+    };
+
+    res.statusCode = 200;
+    res.json(status);
     return;
   }
   truncateData(broadcasts, 2);
@@ -107,17 +109,18 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
 
-  people.forEach((person) => {
-    twilio.messages.create({
-      from: TWILIO_NUMBER,
-      to: person.mobileNumber,
-      body: broadcastMessage,
-      mediaUrl: chartURL,
-    });
-  });
-
+  // people.forEach((person) => {
+  //   twilio.messages.create({
+  //     from: TWILIO_NUMBER,
+  //     to: person.mobileNumber,
+  //     body: broadcastMessage,
+  //     mediaUrl: chartURL,
+  //   });
+  // });
+  const status = { status: "Broadcast", LRAPA_AQI: aqi };
+  console.info(status);
   res.statusCode = 200;
-  res.json({ status: "Broadcast", LRAPA_AQI: aqi });
+  res.json(status);
 };
 
 function truncateData(objects, count) {
