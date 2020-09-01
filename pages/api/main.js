@@ -78,7 +78,7 @@ export default async (req, res) => {
   const previousBroadcastAQI = (broadcasts[0] && broadcasts[0].aqi) || 0;
   const previousBroadcastRange = (broadcasts[0] && broadcasts[0].range) || 0;
   const previousBroadcastTime = (broadcasts[0] && broadcasts[0]._createdAt) || 0;
-  const minutesSinceBroadcast = (new Date().getTime() - previousBroadcastTime) / 1000 / 60;
+  const minutesSinceBroadcast = (new Date().getTime() - new Date(previousBroadcastTime).getTime()) / 1000 / 60;
 
   const recentlySent = minutesSinceBroadcast < 5;
   const rangeNotChanged = previousBroadcastRange == currentCondition.range;
@@ -93,8 +93,6 @@ export default async (req, res) => {
       },
     };
 
-    console.log(status);
-
     res.statusCode = 200;
     res.json(status);
     return;
@@ -103,7 +101,7 @@ export default async (req, res) => {
 
   const broadcastMessage = `Air quality has gone from '${conditions[previousBroadcastRange].name}' (${previousBroadcastAQI}) to '${currentCondition.name}' (${aqi})`;
 
-  client.create({
+  await client.create({
     _type: "broadcast",
     aqi: +aqi,
     range: +currentCondition.range,
@@ -111,16 +109,16 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
 
-  // people.forEach((person) => {
-  //   twilio.messages.create({
-  //     from: TWILIO_NUMBER,
-  //     to: person.mobileNumber,
-  //     body: broadcastMessage,
-  //     mediaUrl: chartURL,
-  //   });
-  // });
+  people.forEach(async (person) => {
+    await twilio.messages.create({
+      from: TWILIO_NUMBER,
+      to: person.mobileNumber,
+      body: broadcastMessage,
+      mediaUrl: chartURL,
+    });
+  });
+
   const status = { status: "Broadcast", LRAPA_AQI: aqi };
-  console.log(status);
   res.statusCode = 200;
   res.json(status);
 };
