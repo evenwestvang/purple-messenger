@@ -9,11 +9,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>Is Bowie's House 🔥?</h1>
-      </main>
-
-      <footer className={styles.footer}>A 20 Keefer Ct. Production</footer>
+      <main className={styles.main}>I'm just a function.</main>
     </div>
   );
 }
