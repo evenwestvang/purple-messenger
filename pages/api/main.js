@@ -107,7 +107,7 @@ export default async (req, res) => {
     range: +currentCondition.range,
   });
 
-  const chartURL = `https://quickchart.io/chart?backgroundColor=%23ffffff&c=${lineChartURLSpec(measurements)}`;
+  const chartURL = `https://quickchart.io/chart?c=${lineChartURLSpec(measurements)}`;
 
   people.forEach(async (person) => {
     await twilio.messages.create({
