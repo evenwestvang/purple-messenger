@@ -13,7 +13,8 @@ const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_NUMBER = process.env.TWILIO_NUMBER;
 const twilio = require("twilio")(ACCOUNT_SID, TWILIO_TOKEN);
 
-const WOOD_SMOKE_REBATE_MAGIC_NUMBER = 0.48;
+const CORRECTED_SLOPE = 0.851;
+const CORRECTED_INTERCEPT = 1.1644;
 
 const conditions = [
   {
@@ -50,7 +51,7 @@ export default async (req, res) => {
   const sensorResult = await fetch(sensorURL);
   const sensorResponse = await sensorResult.json();
   const atmosphericPM25 = sensorResponse.results[0].pm2_5_atm;
-  let aqi = convert("pm25", "raw", "usaEpa", atmosphericPM25 * WOOD_SMOKE_REBATE_MAGIC_NUMBER);
+  let aqi = convert("pm25", "raw", "usaEpa", (atmosphericPM25 * CORRECTED_SLOPE) + CORRECTED_INTERCEPT);
 
   let currentCondition;
   for (let i = 0; i < conditions.length; i++) {
