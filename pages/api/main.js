@@ -121,14 +121,14 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?c=${lineChartURLSpec(measurements)}`;
 
-  // people.forEach(async (person) => {
-  //   await twilio.messages.create({
-  //     from: TWILIO_NUMBER,
-  //     to: person.mobileNumber,
-  //     body: broadcastMessage,
-  //     mediaUrl: chartURL,
-  //   });
-  // });
+  people.forEach(async (person) => {
+    await twilio.messages.create({
+      from: TWILIO_NUMBER,
+      to: person.mobileNumber,
+      body: broadcastMessage,
+      mediaUrl: chartURL,
+    });
+  });
 
   const status = { status: "Broadcast", LRAPA_AQI: aqi };
   res.statusCode = 200;
