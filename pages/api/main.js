@@ -52,7 +52,7 @@ export default async (req, res) => {
   const sensorResult = await fetch(sensorURL);
   const sensorResponse = await sensorResult.json();
   const atmosphericPM25 = sensorResponse.results[0].pm2_5_atm;
-  let aqi = convert("pm25", "raw", "usaEpa", (atmosphericPM25 * CORRECTED_SLOPE) + CORRECTED_INTERCEPT);
+  let aqi = convert("pm25", "raw", "usaEpa", atmosphericPM25 * CORRECTED_SLOPE + CORRECTED_INTERCEPT);
 
   let currentCondition;
   for (let i = 0; i < conditions.length; i++) {
