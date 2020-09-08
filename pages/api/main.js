@@ -1,4 +1,5 @@
 import { convert } from "@shootismoke/convert";
+import { ModelBuildInstance } from "twilio/lib/rest/preview/understand/assistant/modelBuild";
 const sanityClient = require("@sanity/client");
 
 const client = sanityClient({
@@ -64,9 +65,19 @@ export default async (req, res) => {
 
   const measurements = await client.fetch('*[_type == "measurement"] | order(_createdAt desc)');
 
+  if (aqi < measurements[0].aqi * 0.5) {
+    const status = {
+      status: "spurious reading",
+    };
+    res.statusCode = 200;
+    res.json(status);
+    return;
+  }
+
   const measurementDoc = {
     _type: "measurement",
     range: currentCondition.range,
+    sensorResponse: sensorResponse,
     aqi: +aqi,
     pm25: +atmosphericPM25,
   };
@@ -110,14 +121,14 @@ export default async (req, res) => {
 
   const chartURL = `https://quickchart.io/chart?c=${lineChartURLSpec(measurements)}`;
 
-  people.forEach(async (person) => {
-    await twilio.messages.create({
-      from: TWILIO_NUMBER,
-      to: person.mobileNumber,
-      body: broadcastMessage,
-      mediaUrl: chartURL,
-    });
-  });
+  // people.forEach(async (person) => {
+  //   await twilio.messages.create({
+  //     from: TWILIO_NUMBER,
+  //     to: person.mobileNumber,
+  //     body: broadcastMessage,
+  //     mediaUrl: chartURL,
+  //   });
+  // });
 
   const status = { status: "Broadcast", LRAPA_AQI: aqi };
   res.statusCode = 200;
