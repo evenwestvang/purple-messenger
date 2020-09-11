@@ -42,6 +42,10 @@ const conditions = [
     name: "Nope. Just Nope.",
     valueBeneath: 200,
   },
+  {
+    name: "Leviathan awakens.",
+    valueBeneath: 300,
+  },
 ];
 
 export default async (req, res) => {
